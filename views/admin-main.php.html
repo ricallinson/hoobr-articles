@@ -1,0 +1,28 @@
+<div class="panel">
+	<div class="panel-heading">
+		<h3 class="panel-title">Posts</h3>
+	</div>
+	<?php if ($saved) {?>
+	<div class="alert">Page saved.</div>
+	<?php }?>
+	<form method="post">
+		<fieldset>
+			<input type="hidden" name="post-id" value="<?php echo $postId;?>"></input>
+			<div class="form-group">
+				<label for="">Title</label>
+				<input class="form-control" type="text" name="title" value="<?php echo $title;?>" size="60"></input>
+			</div>
+			<div class="form-group">
+				<label for="">Text</label>
+				<textarea class="form-control" name="text" rows="10"><?php echo $text;?></textarea>
+			</div>
+			<div class="form-group">
+				<a href="?module=hoobr-posts&amp;action=main&amp;hoobr-post-action=new" class="btn btn-primary">Create new page</a>
+				<a href="?module=hoobr-posts&amp;action=main&amp;post-id=<?php echo $postId;?>&amp;hoobr-post-action=delete" class="btn btn-danger">Delete this page</a>
+				<input type="hidden" name="module" value="hoobr-posts"></input>
+				<input type="hidden" name="action" value="main"></input>
+				<input class="btn btn-default pull-right" type="submit" name="hoobr-post-action" value="Save page"></input>
+			</div>
+		</fieldset>
+	</form>
+</div>

@@ -1,0 +1,33 @@
+{
+    "name": "hoobr-articles",
+    "description": "Article creator and organizer for Hoobr.",
+    "version": "0.0.1",
+    "author": {
+        "name": "Ric Allinson",
+        "email": "npm@ricallinson.com"
+    },
+    "engines": {
+        "php": ">= 5.4.0"
+    },
+    "config": {
+        "hoobr": {
+            "version": "*",
+            "type": "module",
+            "core": "false"
+        }
+    },
+    "dependencies" : {
+        
+    },
+    "devDependencies" : {
+        
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:ricallinson/hoobr-articles.git"
+    },
+    "scripts": {
+        "test": "./test/run"
+    },
+    "license": "MIT"
+}
