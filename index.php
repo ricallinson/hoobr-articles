@@ -93,7 +93,7 @@ $exports["admin-sidebar"] = function () use ($req, $render, $store, $pathlib) {
 
 $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib, $uuid) {
 
-    $action = strtolower($req->param("hoobr-article-action"));
+    $action = strtolower($req->param("hoobr-articles-action"));
     $saved = false;
     $articleId = $req->param("article-id");
     $title = $req->param("title");
@@ -105,7 +105,7 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
 
         $res->redirect("?module=hoobr-articles&action=main");
 
-    } else if ($action === "save page" && $articleId) {
+    } else if ($action === "save" && $articleId) {
 
         if (!$title) {
             $title = "New Article";
