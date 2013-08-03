@@ -1,7 +1,7 @@
 <ul class="nav navbar-nav">
-	<?php foreach ($posts as $postId => $title) {?>
-	<li<?php if ($postId == $current) {?> class="active"<?php }?>>
-		<a href="?module=hoobr-posts&amp;action=main&amp;post-id=<?php echo $postId;?>"><?php echo $title;?></a>
+	<?php foreach ($articles as $articleId => $title) {?>
+	<li<?php if ($articleId === $current) {?> class="active"<?php }?>>
+		<a href="?module=hoobr-articles&amp;action=main&amp;article-id=<?php echo $articleId;?>"><?php echo $title;?></a>
 	</li>
 	<?php }?>
 </ul>

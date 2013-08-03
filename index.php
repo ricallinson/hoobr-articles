@@ -1,5 +1,5 @@
 <?php
-namespace php_require\hoobr_post;
+namespace php_require\hoobr_articles;
 
 $pathlib = $require("php-path");
 $keyval = $require("php-keyval");
@@ -8,9 +8,9 @@ $render = $require("php-render-php");
 $req = $require("php-http/request");
 $res = $require("php-http/response");
 
-$store = $keyval($pathlib->join($req->cfg("datroot"), "posts"), 10);
+$store = $keyval($pathlib->join($req->cfg("datroot"), "articles"), 10);
 
-function getFirstPostId($store) {
+function getFirstArticleId($store) {
     $keys = $store->getKeys(0, 1);
     if (count($keys) <= 0) {
         return null;
@@ -18,70 +18,70 @@ function getFirstPostId($store) {
     return $keys[0];
 }
 
-function getPostsList($store, $from=0, $to=null) {
+function getArticlesList($store, $from=0, $to=null) {
 
-    $posts = array();
-    $postIds = $store->getKeys($from, $to);
+    $articles = array();
+    $articleIds = $store->getKeys($from, $to);
 
-    foreach ($postIds as $postId) {
-        $posts[$postId] = $store->get($postId)["title"];
+    foreach ($articleIds as $articleId) {
+        $articles[$articleId] = $store->get($articleId)["title"];
     }
 
-    return $posts;
+    return $articles;
 }
 
 /*
-    List all posts in a menu.
+    List all articles in a menu.
 */
 
 $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 
-    $postId = $req->param("post-id");
-    $posts = getPostsList($store);
+    $articleId = $req->param("article-id");
+    $articles = getArticlesList($store);
 
-    if (!$postId) {
-        reset($posts);
-        $postId = key($posts);
+    if (!$articleId) {
+        reset($articles);
+        $articleId = key($articles);
     }
 
     return $render($pathlib->join(__DIR__, "views", "menu.php.html"), array(
-        "posts" => $posts,
-        "current" => $postId
+        "articles" => $articles,
+        "current" => $articleId
     ));
 };
 
 /*
-    Show a post.
+    Show a article.
 */
 
 $exports["main"] = function () use ($req, $render, $store, $pathlib) {
 
-    $postId = $req->param("post-id");
+    $articleId = $req->param("article-id");
 
-    if (!$postId) {
-        // if there is no postId get the first one returned by store?
-        $postId = getFirstPostId($store);
+    if (!$articleId) {
+        // if there is no articleId get the first one returned by store?
+        $articleId = getFirstArticleId($store);
     }
 
-    $post = $store->get($postId);
+    $article = $store->get($articleId);
 
     return $render($pathlib->join(__DIR__, "views", "main.php.html"), array(
-        "post" => $post
+        "article" => $article
     ));
 };
 
 /*
-    List all posts in a sidebar.
+    List all articles in a sidebar.
 */
 
 $exports["admin-sidebar"] = function () use ($req, $render, $store, $pathlib) {
 
-    $postId = $req->param("post-id");
-    $posts = getPostsList($store);
+    $articleId = $req->param("article-id");
+    $articles = getArticlesList($store);
 
     return $render($pathlib->join(__DIR__, "views", "admin-sidebar.php.html"), array(
-        "posts" => $posts,
-        "current" => $postId
+        "articles" => $articles,
+        "current" => $articleId
     ));
 };
 
@@ -93,41 +93,41 @@ $exports["admin-sidebar"] = function () use ($req, $render, $store, $pathlib) {
 
 $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib, $uuid) {
 
-    $action = strtolower($req->param("hoobr-post-action"));
+    $action = strtolower($req->param("hoobr-article-action"));
     $saved = false;
-    $postId = $req->param("post-id");
+    $articleId = $req->param("article-id");
     $title = $req->param("title");
     $text = $req->param("text");
 
-    if ($action === "delete" && $postId) {
+    if ($action === "delete" && $articleId) {
 
-        $store->delete($postId);
+        $store->delete($articleId);
 
-        $res->redirect("?module=hoobr-posts&action=main");
+        $res->redirect("?module=hoobr-articles&action=main");
 
-    } else if ($action === "save page" && $postId) {
+    } else if ($action === "save page" && $articleId) {
 
         if (!$title) {
-            $title = "New Post";
+            $title = "New Article";
         }
 
-        // save the post
-        $saved = $store->put($postId, array("title" => $title, "text" => $text));
+        // save the article
+        $saved = $store->put($articleId, array("title" => $title, "text" => $text));
 
-    } else if ($action === "new" || !$postId) {
+    } else if ($action === "new" || !$articleId) {
 
-        // starting a new post
-        $postId = $uuid->generate(1, 101);
+        // starting a new article
+        $articleId = $uuid->generate(1, 101);
 
     }
 
-    // load the post
-    $post = $store->get($postId);
-    $title = $post["title"];
-    $text = $post["text"];
+    // load the article
+    $article = $store->get($articleId);
+    $title = $article["title"];
+    $text = $article["text"];
 
     return $render($pathlib->join(__DIR__, "views", "admin-main.php.html"), array(
-        "postId" => $postId,
+        "articleId" => $articleId,
         "title" => $title,
         "text" => $text,
         "saved" => $saved ? "Saved" : ""
