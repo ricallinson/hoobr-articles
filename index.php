@@ -2,13 +2,13 @@
 namespace php_require\hoobr_articles;
 
 $pathlib = $require("php-path");
-$keyval = $require("php-keyval");
+$ContentStore = $require("hoobr-content-store");
 $uuid = $require("php-uuid");
 $render = $require("php-render-php");
 $req = $require("php-http/request");
 $res = $require("php-http/response");
 
-$store = $keyval($pathlib->join($req->cfg("datroot"), "articles"), 10);
+$store = $ContentStore("articles", 10 /*seconds*/);
 
 function getFirstArticleId($store) {
     $keys = $store->getKeys(0, 1);
