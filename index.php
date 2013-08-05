@@ -103,7 +103,7 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
 
         $store->delete($articleId);
 
-        $res->redirect("?module=hoobr-articles&action=main");
+        $res->redirect("?page=admin&module=hoobr-articles&action=main");
 
     } else if ($action === "save" && $articleId) {
 

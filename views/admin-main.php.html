@@ -17,8 +17,9 @@
 				<textarea class="form-control" name="text" rows="10"><?php echo $text;?></textarea>
 			</div>
 			<div class="form-group">
-				<a href="?module=hoobr-articles&amp;action=main&amp;hoobr-articles-action=new" class="btn btn-primary">Create new page</a>
-				<a href="?module=hoobr-articles&amp;action=main&amp;article-id=<?php echo $articleId;?>&amp;hoobr-articles-action=delete" class="btn btn-danger">Delete this page</a>
+				<a href="?page=admin&amp;module=hoobr-articles&amp;action=main&amp;hoobr-articles-action=new" class="btn btn-primary">Create new page</a>
+				<a href="?page=admin&amp;module=hoobr-articles&amp;action=main&amp;article-id=<?php echo $articleId;?>&amp;hoobr-articles-action=delete" class="btn btn-danger">Delete this page</a>
+				<input type="hidden" name="page" value="admin"></input>
 				<input type="hidden" name="module" value="hoobr-articles"></input>
 				<input type="hidden" name="action" value="main"></input>
 				<input type="hidden" name="hoobr-articles-action" value="save">

@@ -5,7 +5,7 @@
     <ul class="nav nav-pills nav-stacked">
         <?php foreach ($articles as $articleId => $title) {?>
         <li<?php if ($articleId == $current) {?> class="active"<?php }?>>
-            <a href="?module=hoobr-articles&amp;action=main&amp;article-id=<?php echo $articleId;?>"><?php echo $title;?></a>
+            <a href="?page=admin&amp;module=hoobr-articles&amp;action=main&amp;article-id=<?php echo $articleId;?>"><?php echo $title;?></a>
         </li>
         <?php }?>
     </ul>
