@@ -18,10 +18,10 @@ function getFirstArticleId($store) {
     return $keys[0];
 }
 
-function getArticlesList($store, $from=0, $to=null) {
+function getArticlesList($store, $from=0, $length=null) {
 
     $articles = array();
-    $articleIds = $store->getKeys($from, $to);
+    $articleIds = $store->getKeys($from, $length);
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId)["title"];
@@ -50,42 +50,64 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
     ));
 };
 
-$exports["splash"] = function ($params) use ($req, $render, $store, $pathlib) {
+/*
+    Render a single article form the given "article-id".
 
-    if (!isset($params["splash-id"])) {
-        // if there is no splash-id return nothing.
+    $params = array(
+        "article-id" => UUID,
+        "view" => "article" | "splash"
+    )
+*/
+
+$exports["article"] = function ($params) use ($req, $render, $store, $pathlib) {
+
+    $articleId = isset($params["article-id"]) ? $params["article-id"] : null;
+
+    if (!$articleId) {
+        // if there is no articleId return nothing.
         return "";
     }
 
-    $article = $store->get($params["splash-id"]);
+    $article = $store->get($articleId);
 
     if (!$article) {
         // if there is no article found return nothing.
         return "";
     }
 
-    return $render($pathlib->join(__DIR__, "views", "splash.php.html"), array(
+    $view = isset($params["view"]) ? $params["view"] : "article";
+
+    return $render($pathlib->join(__DIR__, "views", $view . ".php.html"), array(
         "article" => $article
     ));
 };
 
 /*
-    Show a article.
+    Render 1 or more articles with pagination or endless scroll.
+
+    $params = array(
+        "start" => int,
+        "length" => int,
+        "more" => "scroll" | "page",
+        "category" => ""
+    )
 */
 
-$exports["main"] = function () use ($req, $render, $store, $pathlib) {
+$exports["main"] = function ($params) use ($req, $render, $store, $pathlib) {
 
-    $articleId = $req->param("article-id");
+    $from = isset($params["from"]) ? $params["from"] : 0;
+    $length = isset($params["length"]) ? $params["length"] : 10;
+    $more = isset($params["more"]) ? $params["more"] : "scroll";
 
-    if (!$articleId) {
-        // if there is no articleId get the first one returned by store?
-        $articleId = getFirstArticleId($store);
+    $articles = array();
+    $articleIds = $store->getKeys($from, $length);
+
+    foreach ($articleIds as $articleId) {
+        $articles[$articleId] = $store->get($articleId);
     }
 
-    $article = $store->get($articleId);
-
     return $render($pathlib->join(__DIR__, "views", "main.php.html"), array(
-        "article" => $article
+        "articles" => $articles
     ));
 };
 
