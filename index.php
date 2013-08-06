@@ -50,6 +50,25 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
     ));
 };
 
+$exports["splash"] = function ($params) use ($req, $render, $store, $pathlib) {
+
+    if (!isset($params["splash-id"])) {
+        // if there is no splash-id return nothing.
+        return "";
+    }
+
+    $article = $store->get($params["splash-id"]);
+
+    if (!$article) {
+        // if there is no article found return nothing.
+        return "";
+    }
+
+    return $render($pathlib->join(__DIR__, "views", "splash.php.html"), array(
+        "article" => $article
+    ));
+};
+
 /*
     Show a article.
 */
