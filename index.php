@@ -7,6 +7,7 @@ $uuid = $require("php-uuid");
 $render = $require("php-render-php");
 $req = $require("php-http/request");
 $res = $require("php-http/response");
+$markdown = $require("./lib/markdown");
 
 $store = $ContentStore("articles", 10 /*seconds*/);
 
@@ -59,7 +60,7 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
     )
 */
 
-$exports["article"] = function ($params) use ($req, $render, $store, $pathlib) {
+$exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
     $articleId = isset($params["article-id"]) ? $params["article-id"] : null;
 
@@ -77,6 +78,8 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $view = isset($params["view"]) ? $params["view"] : "article";
 
+    $article["text"] = $markdown($article["text"]);
+
     return $render($pathlib->join(__DIR__, "views", $view . ".php.html"), array(
         "article" => $article
     ));
@@ -93,7 +96,7 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib) {
     )
 */
 
-$exports["main"] = function ($params) use ($req, $render, $store, $pathlib) {
+$exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
     $from = isset($params["from"]) ? $params["from"] : 0;
     $length = isset($params["length"]) ? $params["length"] : 10;
@@ -105,6 +108,7 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId);
+        $articles[$articleId]["text"] = $markdown($articles[$articleId]["text"]);
     }
 
     return $render($pathlib->join(__DIR__, "views", "main.php.html"), array(
