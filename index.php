@@ -88,8 +88,8 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib) {
     $params = array(
         "start" => int,
         "length" => int,
-        "more" => "scroll" | "page",
-        "category" => ""
+        "category" => "",
+        "more" => "scroll" | "page"
     )
 */
 
@@ -97,10 +97,11 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $from = isset($params["from"]) ? $params["from"] : 0;
     $length = isset($params["length"]) ? $params["length"] : 10;
+    $category = isset($params["category"]) ? $params["category"] : "";
     $more = isset($params["more"]) ? $params["more"] : "scroll";
 
     $articles = array();
-    $articleIds = $store->getKeys($from, $length);
+    $articleIds = $store->getKeys($from, $length, array("category" => $category));
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId);
@@ -136,8 +137,11 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
 
     $action = strtolower($req->param("hoobr-articles-action"));
     $saved = false;
+
+    // Get the article from form values.
     $articleId = $req->param("article-id");
     $title = $req->param("title");
+    $category = $req->param("category");
     $text = $req->param("text");
 
     if ($action === "delete" && $articleId) {
@@ -152,24 +156,27 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
             $title = "New Article";
         }
 
-        // save the article
-        $saved = $store->put($articleId, array("title" => $title, "text" => $text));
+        // Save the article.
+        $saved = $store->put($articleId, array("title" => $title, "category" => $category, "text" => $text));
 
     } else if ($action === "new" || !$articleId) {
 
-        // starting a new article
+        // Starting a new article.
         $articleId = $uuid->generate(1, 101);
 
     }
 
-    // load the article
+    // Load the article.
     $article = $store->get($articleId);
     $title = $article["title"];
+    $category = $article["category"];
     $text = $article["text"];
 
+    // Render the form.
     return $render($pathlib->join(__DIR__, "views", "admin-main.php.html"), array(
         "articleId" => $articleId,
         "title" => $title,
+        "category" => $category,
         "text" => $text,
         "saved" => $saved ? "Saved" : ""
     ));
