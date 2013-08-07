@@ -38,9 +38,10 @@ function getArticlesList($store, $from = 0, $length = null, $filters = array()) 
 $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
-    $category = isset($params["category"]) ? $params["category"] : null;
+    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
+    $category = $category ? array("category" => $params["category"]) : null;
 
-    $articles = getArticlesList($store, 0, null, array("category" => $category));
+    $articles = getArticlesList($store, 0, null, $category);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
@@ -55,9 +56,10 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 $exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
-    $category = isset($params["category"]) ? $params["category"] : null;
+    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
+    $category = $category ? array("category" => $params["category"]) : null;
 
-    $articles = getArticlesList($store, 0, null, array("category" => $category));
+    $articles = getArticlesList($store, 0, null, $category);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
@@ -115,11 +117,12 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $mar
 
     $from = isset($params["from"]) ? $params["from"] : 0;
     $length = isset($params["length"]) ? $params["length"] : 10;
-    $category = isset($params["category"]) ? $params["category"] : "";
+    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
+    $category = $category ? array("category" => $params["category"]) : null;
     $more = isset($params["more"]) ? $params["more"] : "scroll";
 
     $articles = array();
-    $articleIds = $store->getKeys($from, $length, array("category" => $category));
+    $articleIds = $store->getKeys($from, $length, $category);
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId);
