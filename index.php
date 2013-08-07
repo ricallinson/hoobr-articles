@@ -81,7 +81,7 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $
     $article["text"] = $markdown($article["text"]);
 
     return $render($pathlib->join(__DIR__, "views", $view . ".php.html"), array(
-        "article" => $article
+        "articles" => array($article)
     ));
 };
 
@@ -111,7 +111,7 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $mar
         $articles[$articleId]["text"] = $markdown($articles[$articleId]["text"]);
     }
 
-    return $render($pathlib->join(__DIR__, "views", "main.php.html"), array(
+    return $render($pathlib->join(__DIR__, "views", "article.php.html"), array(
         "articles" => $articles
     ));
 };
