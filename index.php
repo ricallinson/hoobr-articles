@@ -203,3 +203,15 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
         "saved" => $saved ? "Saved" : ""
     ));
 };
+
+/*
+    Testing ideas for module level assets.
+*/
+
+$exports["config"] = array(
+    "js" => array(
+        "bottom" => array(
+            "./node_modules/hoobr-articles/assets/js/articles.js"
+        )
+    )
+);
