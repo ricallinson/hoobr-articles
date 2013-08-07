@@ -19,10 +19,10 @@ function getFirstArticleId($store) {
     return $keys[0];
 }
 
-function getArticlesList($store, $from=0, $length=null) {
+function getArticlesList($store, $from = 0, $length = null, $filters = array()) {
 
     $articles = array();
-    $articleIds = $store->getKeys($from, $length);
+    $articleIds = $store->getKeys($from, $length, $filters);
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId)["title"];
@@ -38,14 +38,28 @@ function getArticlesList($store, $from=0, $length=null) {
 $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
-    $articles = getArticlesList($store);
+    $category = isset($params["category"]) ? $params["category"] : null;
 
-    if (!$articleId) {
-        reset($articles);
-        $articleId = key($articles);
-    }
+    $articles = getArticlesList($store, 0, null, array("category" => $category));
 
-    return $render($pathlib->join(__DIR__, "views", "menu.php.html"), array(
+    return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
+        "articles" => $articles,
+        "current" => $articleId
+    ));
+};
+
+/*
+    List all articles in a menu.
+*/
+
+$exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
+
+    $articleId = $req->param("article-id");
+    $category = isset($params["category"]) ? $params["category"] : null;
+
+    $articles = getArticlesList($store, 0, null, array("category" => $category));
+
+    return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
         "current" => $articleId
     ));
@@ -63,17 +77,18 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
     $articleId = isset($params["article-id"]) ? $params["article-id"] : null;
+    $articleId = $articleId ? $articleId : $req->param("article-id");
 
     if (!$articleId) {
-        // if there is no articleId return nothing.
-        return "";
+        // if there is no articleId return not found.
+        return "Not found."; // should be a template
     }
 
     $article = $store->get($articleId);
 
     if (!$article) {
         // if there is no article found return nothing.
-        return "";
+        return "Not found."; // should be a template
     }
 
     $view = isset($params["view"]) ? $params["view"] : "article";
