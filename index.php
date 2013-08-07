@@ -181,7 +181,7 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
     } else if ($action === "new" || !$articleId) {
 
         // Starting a new article.
-        $articleId = $uuid->generate(1, 101);
+        $articleId = $uuid();
 
     }
 
