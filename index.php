@@ -110,14 +110,14 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $
 
     if (!$articleId) {
         // if there is no articleId return not found.
-        return "Not found."; // should be a template
+        return $render($pathlib->join(__DIR__, "views", "not-found.php.html"));
     }
 
     $article = $store->get($articleId);
 
     if (!$article) {
         // if there is no article found return nothing.
-        return "Not found."; // should be a template
+        return $render($pathlib->join(__DIR__, "views", "not-found.php.html"));
     }
 
     $view = isset($params["view"]) ? $params["view"] : "article";
@@ -168,9 +168,14 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $mar
         Render the article. 
     */
 
-    $articlesRender = $render($pathlib->join(__DIR__, "views", "article.php.html"), array(
-        "articles" => $articles
-    ));
+    if ($total > 0) {
+        $articlesRender = $render($pathlib->join(__DIR__, "views", "article.php.html"), array(
+            "articles" => $articles
+        ));
+    } else {
+        // if there is no article found return nothing.
+        $articlesRender = $render($pathlib->join(__DIR__, "views", "end.php.html"));
+    }
 
     /*
         Render the paging links.
