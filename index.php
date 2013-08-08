@@ -3,7 +3,6 @@ namespace php_require\hoobr_articles;
 
 $pathlib = $require("php-path");
 $ContentStore = $require("hoobr-content-store");
-$uuid = $require("php-uuid");
 $render = $require("php-render-php");
 $req = $require("php-http/request");
 $res = $require("php-http/response");
@@ -11,13 +10,29 @@ $markdown = $require("./lib/markdown");
 
 $store = $ContentStore("articles", 10 /*seconds*/);
 
-function getFirstArticleId($store) {
-    $keys = $store->getKeys(0, 1);
+/*
+    Generate an ID.
+*/
+
+function genId() {
+    return round(microtime(true)) . "-" . uniqid(true);
+}
+
+/*
+    Get the ID for the first article found.
+*/
+
+function getFirstArticleId($store, $filters = array()) {
+    $keys = $store->getKeys(0, 1, $filters);
     if (count($keys) <= 0) {
         return null;
     }
     return $keys[0];
 }
+
+/*
+    Get a list of article ID's in creation order.
+*/
 
 function getArticlesList($store, $from = 0, $length = null, $filters = array()) {
 
@@ -33,15 +48,20 @@ function getArticlesList($store, $from = 0, $length = null, $filters = array()) 
 
 /*
     List all articles in a menu.
+
+    $params = array(
+        "article-id" => UUID,
+        "category" => String
+    )
 */
 
 $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
     $category = isset($params["category"]) ? $params["category"] : $req->param("category");
-    $category = $category ? array("category" => $params["category"]) : null;
+    $filters = $category ? array("category" => $params["category"]) : null;
 
-    $articles = getArticlesList($store, 0, null, $category);
+    $articles = getArticlesList($store, 0, null, $filters);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
@@ -50,20 +70,28 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 };
 
 /*
-    List all articles in a menu.
+    List all articles in a sidebar.
+
+    $params = array(
+        "article-id" => UUID,
+        "title" => String,
+        "category" => String
+    )
 */
 
 $exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
+    $title = isset($params["title"]) ? $params["title"] : "Articles";
     $category = isset($params["category"]) ? $params["category"] : $req->param("category");
-    $category = $category ? array("category" => $params["category"]) : null;
+    $filters = $category ? array("category" => $params["category"]) : null;
 
-    $articles = getArticlesList($store, 0, null, $category);
+    $articles = getArticlesList($store, 0, null, $filters);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
-        "current" => $articleId
+        "current" => $articleId,
+        "title" => $title
     ));
 };
 
@@ -118,11 +146,11 @@ $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $mar
     $from = isset($params["from"]) ? $params["from"] : 0;
     $length = isset($params["length"]) ? $params["length"] : 10;
     $category = isset($params["category"]) ? $params["category"] : $req->param("category");
-    $category = $category ? array("category" => $params["category"]) : null;
+    $filters = $category ? array("category" => $params["category"]) : null;
     $more = isset($params["more"]) ? $params["more"] : "scroll";
 
     $articles = array();
-    $articleIds = $store->getKeys($from, $length, $category);
+    $articleIds = $store->getKeys($from, $length, $filters);
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId);
@@ -155,7 +183,7 @@ $exports["admin-sidebar"] = function () use ($req, $render, $store, $pathlib) {
     CRUD Create, Read, Update, Delete
 */
 
-$exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib, $uuid) {
+$exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib) {
 
     $action = strtolower($req->param("hoobr-articles-action"));
     $saved = false;
@@ -184,7 +212,7 @@ $exports["admin-main"] = function () use ($req, $res, $render, $store, $pathlib,
     } else if ($action === "new" || !$articleId) {
 
         // Starting a new article.
-        $articleId = $uuid();
+        $articleId = genId();
 
     }
 
