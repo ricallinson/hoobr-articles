@@ -58,7 +58,7 @@ function getArticlesList($store, $from = 0, $length = null, $filters = array()) 
 $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
-    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
+    $category = $req->param("category", $params);
     $filters = $category ? array("category" => $params["category"]) : null;
 
     $articles = getArticlesList($store, 0, null, $filters);
@@ -82,10 +82,10 @@ $exports["menu"] = function () use ($req, $render, $store, $pathlib) {
 $exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
-    $title = isset($params["title"]) ? $params["title"] : "Articles";
-    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
-    $filters = $category ? array("category" => $params["category"]) : null;
+    $title = $req->find("title", $params, "Articles");
+    $category = $req->param("category", $params);
 
+    $filters = $category ? array("category" => $params["category"]) : null;
     $articles = getArticlesList($store, 0, null, $filters);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
@@ -106,8 +106,7 @@ $exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
 
 $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
-    $articleId = isset($params["article-id"]) ? $params["article-id"] : null;
-    $articleId = $articleId ? $articleId : $req->param("article-id");
+    $articleId = $req->find("article-id", $params, $req->param("article-id"));
 
     if (!$articleId) {
         // if there is no articleId return not found.
@@ -136,30 +135,58 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $
     $params = array(
         "start" => int,
         "length" => int,
-        "category" => "",
-        "more" => "scroll" | "page"
+        "category" => string
     )
 */
 
 $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
-    $from = isset($params["from"]) ? $params["from"] : 0;
-    $length = isset($params["length"]) ? $params["length"] : 10;
-    $category = isset($params["category"]) ? $params["category"] : $req->param("category");
-    $filters = $category ? array("category" => $params["category"]) : null;
-    $more = isset($params["more"]) ? $params["more"] : "scroll";
-
+    $from = $req->param("from", 0);
+    $length = $req->param("length", 4);
+    $category = $req->param("category", $params);
     $articles = array();
+
+    /*
+        Create a filter and get the ID's to render.
+    */
+
+    $filters = $category ? array("category" => $category) : null;
     $articleIds = $store->getKeys($from, $length, $filters);
+
+    $total = count($articleIds);
+
+    /*
+        Get each article and transform their text using markdown.
+    */
 
     foreach ($articleIds as $articleId) {
         $articles[$articleId] = $store->get($articleId);
         $articles[$articleId]["text"] = $markdown($articles[$articleId]["text"]);
     }
 
-    return $render($pathlib->join(__DIR__, "views", "article.php.html"), array(
+    /*
+        Render the article. 
+    */
+
+    $articlesRender = $render($pathlib->join(__DIR__, "views", "article.php.html"), array(
         "articles" => $articles
     ));
+
+    /*
+        Render the paging links.
+    */
+
+    $pagingRender = $render($pathlib->join(__DIR__, "views", "paging.php.html"), array(
+        "category" => $category,
+        "previous" => $from - $length,
+        "next" => $total === $length ? $from + $length : 0
+    ));
+
+    /*
+        Return the rendered views.
+    */
+
+    return $articlesRender . $pagingRender;
 };
 
 /*

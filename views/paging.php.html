@@ -1,0 +1,8 @@
+<ul class="pager">
+    <?php if ($previous >= 0) {?>
+    <li class="previous"><a href="?page=public&amp;module=hoobr-articles&amp;method=main&amp;from=<?php echo $previous;?>&amp;category=<?php echo $category;?>">&larr; Older</a></li>
+    <?php }?>
+    <?php if ($next > 0) {?>
+    <li class="next"><a href="?page=public&amp;module=hoobr-articles&amp;method=main&amp;from=<?php echo $next;?>&amp;category=<?php echo $category;?>">Newer &rarr;</a></li>
+    <?php }?>
+</ul>
