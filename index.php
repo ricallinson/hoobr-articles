@@ -83,15 +83,16 @@ $exports["sidebar"] = function ($params) use ($req, $render, $store, $pathlib) {
 
     $articleId = $req->param("article-id");
     $title = $req->find("title", $params, "Articles");
-    $category = $req->param("category", $params);
+    $category = $req->find("category", $params);
 
-    $filters = $category ? array("category" => $params["category"]) : null;
+    $filters = $category ? array("category" => $category) : null;
     $articles = getArticlesList($store, 0, null, $filters);
 
     return $render($pathlib->join(__DIR__, "views", "sidebar.php.html"), array(
         "articles" => $articles,
         "current" => $articleId,
-        "title" => $title
+        "title" => $title,
+        "category" => $category
     ));
 };
 
@@ -142,7 +143,7 @@ $exports["article"] = function ($params) use ($req, $render, $store, $pathlib, $
 $exports["main"] = function ($params) use ($req, $render, $store, $pathlib, $markdown) {
 
     $from = $req->param("from", 0);
-    $length = $req->param("length", 4);
+    $length = $req->param("length", 3);
     $category = $req->param("category", $params);
     $articles = array();
 

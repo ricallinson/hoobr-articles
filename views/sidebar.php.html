@@ -1,6 +1,8 @@
 <div class="panel">
     <div class="panel-heading">
-        <h3 class="panel-title"><?php echo $title;?></h3>
+        <h3 class="panel-title">
+            <a href="?page=public&amp;module=hoobr-articles&amp;method=main&amp;category=<?php echo $category;?>"><?php echo $title;?></a>
+        </h3>
     </div>
     <ul class="nav nav-pills nav-stacked">
         <?php foreach ($articles as $articleId => $title) {?>
